@@ -19,7 +19,9 @@ public class AppDbContext : DbContext
             entity.HasKey(o => o.Id);
 
             entity.Property(o => o.Name).IsRequired().HasMaxLength(255).HasColumnType("citext");
-            entity.HasIndex(o => o.Name).IsUnique();
+            entity.HasIndex(o => o.Name).IsUnique().HasFilter("\"IsDeleted\" = false");
+
+            entity.HasQueryFilter(o => !o.IsDeleted);
         });
     }
 }

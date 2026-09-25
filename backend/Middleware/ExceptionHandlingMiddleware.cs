@@ -34,7 +34,8 @@ public class ExceptionHandlingMiddleware
     {
         var (statusCode, message) = ex switch
         {
-            DuplicateNameException => (StatusCodes.Status409Conflict, ex.Message),
+            ConflictException => (StatusCodes.Status409Conflict, ex.Message),
+            NotFoundException => (StatusCodes.Status404NotFound, ex.Message),
             _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred."),
         };
 

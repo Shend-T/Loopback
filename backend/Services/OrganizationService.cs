@@ -41,9 +41,7 @@ public class OrganizationService : IOrganizationService
 
         if (orgExists)
         {
-            throw new DuplicateNameException(
-                $"An organization named '{request.Name}' already exists."
-            );
+            throw new ConflictException($"An organization named '{request.Name}' already exists.");
         }
 
         var organization = new Organization { Name = request.Name };
@@ -58,11 +56,58 @@ public class OrganizationService : IOrganizationService
                     is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation }
             )
         {
-            throw new DuplicateNameException(
-                $"An organization named '{request.Name}' already exists."
-            );
+            throw new ConflictException($"An organization named '{request.Name}' already exists.");
         }
 
         return new OrganizationResponse(organization.Id, organization.Name, organization.CreatedAt);
+    }
+
+    public async Task<OrganizationResponse> UpdateAsync(
+        int id,
+        UpdateOrganizationRequest req,
+        CancellationToken ct
+    )
+    {
+        var org = await _db.Organizations.FirstOrDefaultAsync(o => o.Id == id, ct);
+
+        if (org == null)
+        {
+            throw new NotFoundException($"Organization with id '{id}' was not found");
+        }
+
+        var orgExists = await _db.Organizations.AnyAsync(o => o.Name == req.Name && o.Id != id);
+        if (orgExists)
+        {
+            throw new ConflictException($"An organization named '{req.Name}' already exists.");
+        }
+
+        org.Name = req.Name;
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException ex)
+            when (ex.InnerException
+                    is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation }
+            )
+        {
+            throw new ConflictException($"An organization named '{req.Name}' already exists.");
+        }
+        return new OrganizationResponse(org.Id, org.Name, org.CreatedAt);
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken ct)
+    {
+        var org = await _db.Organizations.FirstOrDefaultAsync(o => o.Id == id, ct);
+
+        if (org == null)
+        {
+            throw new NotFoundException($"Organization with id '{id}' was not found");
+        }
+
+        org.IsDeleted = true;
+        org.DeletedAt = DateTimeOffset.UtcNow;
+
+        await _db.SaveChangesAsync(ct);
     }
 }

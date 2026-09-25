@@ -33,14 +33,24 @@ public class OrganizationsController : ControllerBase
         CancellationToken ct
     )
     {
-        try
-        {
-            var org = await _service.CreateAsync(req, ct);
-            return CreatedAtAction(nameof(GetById), new { id = org.Id }, org);
-        }
-        catch (DuplicateNameException e)
-        {
-            return Conflict(e.Message);
-        }
+        var org = await _service.CreateAsync(req, ct);
+        return CreatedAtAction(nameof(GetById), new { id = org.Id }, org);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<OrganizationResponse>> Update(
+        int Id,
+        UpdateOrganizationRequest req,
+        CancellationToken ct
+    )
+    {
+        return await _service.UpdateAsync(Id, req, ct);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        await _service.DeleteAsync(id, ct);
+        return NoContent();
     }
 }
