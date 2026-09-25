@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.Middleware;
 using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,8 +10,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 builder.Services.AddControllers();
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
@@ -24,6 +23,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 
