@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
 using backend.Data;
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
 );
 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -33,6 +35,8 @@ builder
             ),
         };
     });
+
+builder.Services.AddAuthorization();
 
 builder
     .Services.AddControllers()

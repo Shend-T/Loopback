@@ -1,5 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using backend.Auth;
 using backend.DTOs.Users;
+using backend.Models;
 using backend.Services.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
@@ -16,7 +21,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<IReadOnlyList<UserResponse>>> GetAll(CancellationToken ct) =>
         Ok(await _service.GetAllAsync(ct));
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<UserResponse>> GetById(int id, CancellationToken ct) =>
         Ok(await _service.GetByIdAsync(id, ct));
 
@@ -28,5 +33,22 @@ public class UsersController : ControllerBase
     {
         var user = await _service.CreateAsync(req, ct);
         return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+    }
+
+    [Authorize]
+    [HttpPut("{id}")]
+    public async Task<ActionResult<UserResponse>> Update(
+        int id,
+        UpdateUserRequest req,
+        CancellationToken ct
+    )
+    {
+        var caller = new CallerContext(
+            Id: int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+            OrganizationId: int.Parse(User.FindFirstValue("organizationId")!),
+            Role: Enum.Parse<UserRole>(User.FindFirstValue(ClaimTypes.Role)!)
+        );
+
+        return Ok(await _service.UpdateAsync(id, req, caller, ct));
     }
 }
