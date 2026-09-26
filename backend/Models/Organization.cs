@@ -7,5 +7,6 @@ public class Organization
     public DateOnly CreatedAt { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
     public bool IsDeleted { get; set; } = false;
     public DateTimeOffset? DeletedAt { get; set; }
+    public bool IsPlatformOrganization { get; set; } = false;
     public ICollection<User> Users { get; set; } = new List<User>();
 }
