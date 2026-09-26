@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,23 @@ public class AppDbContext : DbContext
             entity.Property(u => u.Role).IsRequired().HasConversion<string>().HasMaxLength(20);
 
             entity.HasQueryFilter(u => !u.IsDeleted);
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+
+            entity
+                .HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(t => t.TokenHash).IsRequired();
+
+            entity.HasIndex(t => t.TokenHash).IsUnique();
+
+            entity.HasQueryFilter(t => !t.User.IsDeleted);
         });
     }
 }
