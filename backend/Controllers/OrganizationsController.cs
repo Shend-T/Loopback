@@ -1,8 +1,8 @@
 using backend.Data;
-using backend.DTOs;
+using backend.DTOs.Organizations;
 using backend.Exceptions;
 using backend.Models;
-using backend.Services;
+using backend.Services.Organizations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

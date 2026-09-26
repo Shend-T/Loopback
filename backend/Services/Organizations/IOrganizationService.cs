@@ -1,6 +1,6 @@
-using backend.DTOs;
+using backend.DTOs.Organizations;
 
-namespace backend.Services;
+namespace backend.Services.Organizations;
 
 public interface IOrganizationService
 {

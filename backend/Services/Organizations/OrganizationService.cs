@@ -1,12 +1,12 @@
 using backend.Data;
-using backend.DTOs;
+using backend.DTOs.Organizations;
 using backend.Exceptions;
 using backend.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-namespace backend.Services;
+namespace backend.Services.Organizations;
 
 public class OrganizationService : IOrganizationService
 {
