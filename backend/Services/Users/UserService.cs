@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.DTOs.Auth;
 using backend.DTOs.Users;
 using backend.Exceptions;
 using backend.Models;
