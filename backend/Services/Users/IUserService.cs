@@ -14,4 +14,6 @@ public interface IUserService
         CallerContext caller,
         CancellationToken ct
     );
+
+    Task DeleteAsync(int id, CallerContext caller, CancellationToken ct);
 }

@@ -51,4 +51,18 @@ public class UsersController : ControllerBase
 
         return Ok(await _service.UpdateAsync(id, req, caller, ct));
     }
+
+    [Authorize]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var caller = new CallerContext(
+            Id: int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+            OrganizationId: int.Parse(User.FindFirstValue("organizationId")!),
+            Role: Enum.Parse<UserRole>(User.FindFirstValue(ClaimTypes.Role)!)
+        );
+
+        await _service.DeleteAsync(id, caller, ct);
+        return NoContent();
+    }
 }

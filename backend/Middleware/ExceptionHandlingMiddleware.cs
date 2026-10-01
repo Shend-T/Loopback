@@ -36,6 +36,7 @@ public class ExceptionHandlingMiddleware
         {
             ConflictException => (StatusCodes.Status409Conflict, ex.Message),
             NotFoundException => (StatusCodes.Status404NotFound, ex.Message),
+            UnauthorizedException => (StatusCodes.Status401Unauthorized, ex.Message),
             _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred."),
         };
 

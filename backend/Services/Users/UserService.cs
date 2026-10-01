@@ -85,13 +85,11 @@ public class UserService : IUserService
         {
             throw new NotFoundException($"User with id: {id} not found");
         }
-        Console.WriteLine(1);
 
         if (!await CanModifyUserAsync(caller, user, ct, allowSelf: true))
         {
             throw new UnauthorizedException("You are not authorized for this action");
         }
-        Console.WriteLine(2);
 
         var userExists = await _db.Users.AnyAsync(
             u => u.Id != id && u.Email == request.Email && u.OrganizationId == user.OrganizationId,
@@ -103,7 +101,6 @@ public class UserService : IUserService
                 $"A user with email {request.Email} already exists in their organization."
             );
         }
-        Console.WriteLine(3);
 
         user.Email = request.Email;
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12);
@@ -112,7 +109,6 @@ public class UserService : IUserService
         try
         {
             await _db.SaveChangesAsync(ct);
-            Console.WriteLine(4);
         }
         catch (DbUpdateException ex)
             when (ex.InnerException
@@ -123,7 +119,7 @@ public class UserService : IUserService
                 $"A user with email {request.Email} already exists in their organization."
             );
         }
-        Console.WriteLine(5);
+
         return new UserResponse(user.Id, user.OrganizationId, user.Email, user.Role);
     }
 
@@ -150,6 +146,48 @@ public class UserService : IUserService
             if (callerOrg?.IsPlatformOrganization == true)
                 return true;
         }
+        return false;
+    }
+
+    public async Task DeleteAsync(int id, CallerContext caller, CancellationToken ct)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+        {
+            throw new NotFoundException($"User with id: {id} does not exits");
+        }
+
+        bool canDeleteUser = await CanDeleteUserAsync(user, caller, ct);
+
+        if (canDeleteUser)
+        {
+            user.IsDeleted = true;
+            user.DeletedAt = DateTimeOffset.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+        else
+        {
+            throw new UnauthorizedException("You are not authorized to complete this action");
+        }
+    }
+
+    private async Task<bool> CanDeleteUserAsync(
+        User user,
+        CallerContext caller,
+        CancellationToken ct
+    )
+    {
+        var isPlatformUser = await _db.Users.AnyAsync(
+            u => u.Id == caller.Id && u.Organization.IsPlatformOrganization,
+            ct
+        );
+        if (isPlatformUser)
+            return true;
+
+        if (caller.OrganizationId == user.OrganizationId && caller.Role == UserRole.Admin)
+            return true;
+
         return false;
     }
 }
