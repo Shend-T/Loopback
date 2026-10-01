@@ -13,6 +13,13 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(o =>
+    o.AddPolicy(
+        "frontend",
+        p => p.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod()
+    )
+);
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
 );
@@ -56,7 +63,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseCors("frontend");
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
