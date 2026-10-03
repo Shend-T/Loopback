@@ -77,4 +77,17 @@ public class AuthService : IAuthService
 
         return new LoginResponse(accessToken, newRefreshToken);
     }
+
+    public async Task LogoutAsync(string refreshToken, CancellationToken ct)
+    {
+        var hash = HashToken(refreshToken);
+
+        var stored = await _db.RefreshTokens.FirstOrDefaultAsync(t => t.TokenHash == hash, ct);
+
+        if (stored is not null && stored.RevokedAt is null)
+        {
+            stored.RevokedAt = DateTimeOffset.UtcNow;
+            await _db.SaveChangesAsync(ct);
+        }
+    }
 }

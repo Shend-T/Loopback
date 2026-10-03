@@ -11,7 +11,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const withToken = (r: HttpRequest<unknown>, token: string | null) =>
     token ? r.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : r;
 
-  const isAuthCall = req.url.includes('/auth/login') || req.url.includes('/auth/refresh');
+  const isAuthCall =
+    req.url.includes('/auth/login') ||
+    req.url.includes('/auth/refresh') ||
+    req.url.includes('/auth/logout');
 
   return next(withToken(req, auth.token)).pipe(
     catchError((err: HttpErrorResponse) => {

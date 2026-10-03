@@ -55,7 +55,15 @@ export class Auth {
   }
 
   logout() {
+    const refreshToken = this.refreshToken;
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+
+    if (refreshToken) {
+      this.http
+        .post(`${environment.apiUrl}/auth/logout`, { refreshToken })
+        .subscribe({ error: () => {} });
+    }
   }
 }

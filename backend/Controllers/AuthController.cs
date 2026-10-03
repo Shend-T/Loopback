@@ -1,5 +1,6 @@
 using backend.DTOs.Auth;
 using backend.Services.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
@@ -27,5 +28,13 @@ public class AuthController : ControllerBase
     {
         var response = await _authService.RefreshAsync(request, ct);
         return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(RefreshRequest req, CancellationToken ct)
+    {
+        await _authService.LogoutAsync(req.RefreshToken, ct);
+        return NoContent();
     }
 }
