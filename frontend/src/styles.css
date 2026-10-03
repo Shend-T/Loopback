@@ -1,11 +1,13 @@
-* {
-  margin: 0;
-  padding: 0;
+@import 'tailwindcss';
 
-  font-family: 'Ubuntu', sans-serif;
+@theme {
+  --font-sans: 'Ubuntu', sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
-  /* font-size: 62.5%; */
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
 }

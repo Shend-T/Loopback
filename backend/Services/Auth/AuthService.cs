@@ -48,4 +48,33 @@ public class AuthService : IAuthService
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
         return Convert.ToBase64String(bytes);
     }
+
+    public async Task<LoginResponse> RefreshAsync(RefreshRequest request, CancellationToken ct)
+    {
+        var hash = HashToken(request.RefreshToken);
+
+        var stored = await _db
+            .RefreshTokens.Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.TokenHash == hash, ct);
+
+        if (stored is null || !stored.IsActive)
+            throw new UnauthorizedException("Invalid refresh token.");
+
+        stored.RevokedAt = DateTimeOffset.UtcNow;
+
+        var accessToken = _tokenService.GenerateAccessToken(stored.User);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+        _db.RefreshTokens.Add(
+            new RefreshToken
+            {
+                UserId = stored.User.Id,
+                TokenHash = HashToken(newRefreshToken),
+                ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+        await _db.SaveChangesAsync(ct);
+
+        return new LoginResponse(accessToken, newRefreshToken);
+    }
 }

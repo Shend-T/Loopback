@@ -1,27 +1,66 @@
-<h1>Login</h1>
+<main class="relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+  <!-- Background glow blobs -->
+  <!-- <div class="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-indigo-600/40 blur-3xl"></div>
+  <div
+    class="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-fuchsia-600/30 blur-3xl"
+  ></div> -->
 
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <label>
-    Email
-    <input type="email" formControlName="email" />
-  </label>
-  @if (form.controls.email.touched && form.controls.email.invalid) {
-    <small>Enter a valid email</small>
-  }
+  <!-- Glass card -->
+  <div
+    class="relative w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl"
+  >
+    <h1 class="text-3xl font-bold tracking-tight">Welcome back!</h1>
+    <p class="mt-1 text-sm text-slate-400">Log in to continue to Loopback</p>
 
-  <label>
-    Password
-    <input type="password" formControlName="password" />
-  </label>
-  @if (form.controls.password.touched && form.controls.password.invalid) {
-    <small>Password is required</small>
-  }
+    <form [formGroup]="form" (ngSubmit)="submit()" class="mt-8 space-y-5">
+      <label class="block">
+        <span class="mb-1.5 block text-sm font-medium text-slate-300">Email</span>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder-slate-500 transition outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/40"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small class="mt-1 block text-xs text-rose-400">Enter a valid email</small>
+        }
+      </label>
 
-  @if (error()) {
-    <p class="error">{{ error() }}</p>
-  }
+      <label class="block">
+        <span class="mb-1.5 block text-sm font-medium text-slate-300">Password</span>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder-slate-500 transition outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/40"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="mt-1 block text-xs text-rose-400">Password is required</small>
+        }
+      </label>
 
-  <button type="submit" [disabled]="loading">Login</button>
-</form>
+      @if (error()) {
+        <p
+          class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-sm text-rose-300"
+        >
+          {{ error() }}
+        </p>
+      }
 
-<p>No account? <a routerLink="/register">Register</a></p>
+      <button
+        type="submit"
+        [disabled]="loading"
+        class="w-full rounded-lg bg-indigo-500 px-4 py-2.5 font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Login
+      </button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-400">
+      No account?
+      <a routerLink="/register" class="font-medium text-indigo-400 hover:text-indigo-300">
+        Register
+      </a>
+    </p>
+  </div>
+</main>

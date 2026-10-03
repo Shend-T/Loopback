@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environment.development';
-import { tap } from 'rxjs';
+import { finalize, Observable, shareReplay, tap } from 'rxjs';
 
-interface LoginResposne {
+interface LoginResponse {
   accessToken: string;
   refreshToken: string;
 }
@@ -12,24 +13,45 @@ interface LoginResposne {
   providedIn: 'root',
 })
 export class Auth {
-  private htpp = inject(HttpClient);
+  private http = inject(HttpClient);
+  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  private refresh$: Observable<LoginResponse> | null = null;
+
+  private saveTokens(res: LoginResponse) {
+    localStorage.setItem('access_token', res.accessToken);
+    localStorage.setItem('refresh_token', res.refreshToken);
+  }
 
   login(email: string, password: string) {
-    return this.htpp
-      .post<LoginResposne>(`${environment.apiUrl}/auth/login`, { email, password })
-      .pipe(
-        tap((res) => {
-          localStorage.setItem('access_token', res.accessToken);
-          localStorage.setItem('refresh_token', res.refreshToken);
-        }),
-      );
+    return this.http
+      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, password })
+      .pipe(tap((res) => this.saveTokens(res)));
+  }
+
+  refresh() {
+    if (!this.refresh$) {
+      this.refresh$ = this.http
+        .post<LoginResponse>(`${environment.apiUrl}/auth/refresh`, {
+          refreshToken: this.refreshToken,
+        })
+        .pipe(
+          tap((res) => this.saveTokens(res)),
+          finalize(() => (this.refresh$ = null)),
+          shareReplay(1),
+        );
+    }
+    return this.refresh$;
   }
 
   get token() {
-    return localStorage.getItem('access_token');
+    return this.isBrowser ? localStorage.getItem('access_token') : null;
+  }
+  get refreshToken() {
+    return this.isBrowser ? localStorage.getItem('refresh_token') : null;
   }
   isLoggedIn() {
-    return !!this.token;
+    return !!this.refreshToken;
   }
 
   logout() {

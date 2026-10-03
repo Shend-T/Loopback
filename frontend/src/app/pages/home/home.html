@@ -1,2 +1,11 @@
-<h1>Hello!</h1>
-<a href="/login">Login</a>
+<h1 class="text-3xl font-bold">Hello!</h1>
+@if (loggedIn) {
+  <p class="break-all text-xs text-slate-400">{{ token }}</p>
+  <button (click)="logout()">Logout</button>
+} @else {
+  <a routerLink="/login">Login</a>
+}
+
+<br /><br /><br />
+
+<button (click)="testRefresh()">Test refresh</button>
