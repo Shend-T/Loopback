@@ -4,9 +4,23 @@ import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environment.development';
 import { finalize, Observable, shareReplay, tap } from 'rxjs';
 
+import { User } from '../models/user';
+
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
+}
+
+const ROLE_CLAIM = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+
+function decodeJwt(token: string): Record<string, any> | null {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    return null;
+  }
 }
 
 @Injectable({
@@ -65,5 +79,18 @@ export class Auth {
         .post(`${environment.apiUrl}/auth/logout`, { refreshToken })
         .subscribe({ error: () => {} });
     }
+  }
+
+  get user(): User | null {
+    const token = this.token;
+    const claims = token ? decodeJwt(token) : null;
+    if (!claims) return null;
+
+    return {
+      id: Number(claims['sub']),
+      email: claims['email'],
+      organizationId: Number(claims['organizationId']),
+      role: claims['role'] ?? claims[ROLE_CLAIM],
+    };
   }
 }
