@@ -2,6 +2,15 @@
 
 @theme {
   --font-sans: 'Ubuntu', sans-serif;
+
+  --color-page: #12181b; /* app background */
+  --color-surface: #111b2e; /* cards, glass base */
+  --color-line: #22314d; /* borders, dividers */
+  --color-fg: #d6e2f5; /* main text */
+  --color-muted: #7f93b5; /* secondary text */
+  --color-accent: #4f9cf9; /* buttons, links, focus rings */
+  --color-accent-hover: #74b0fb;
+  --color-danger: #eb6868;
 }
 
 html {
@@ -9,5 +18,31 @@ html {
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply bg-page text-fg antialiased;
+}
+
+@layer components {
+  .glass-card {
+    @apply relative w-full max-w-md rounded-2xl border border-line bg-surface/60 p-8 shadow-2xl backdrop-blur-xl;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-muted;
+  }
+
+  .field-input {
+    @apply w-full rounded-lg border border-line bg-page/50 px-4 py-2.5 text-fg transition outline-none placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/40;
+  }
+
+  .field-error {
+    @apply mt-1 block text-xs text-danger;
+  }
+
+  .alert-error {
+    @apply rounded-lg border border-danger/30 bg-danger/10 px-4 py-2.5 text-sm text-danger;
+  }
+
+  .btn-primary {
+    @apply w-full rounded-lg bg-accent px-4 py-2.5 font-semibold text-page transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50;
+  }
 }

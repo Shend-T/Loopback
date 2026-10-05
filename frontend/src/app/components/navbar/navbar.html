@@ -1,0 +1,15 @@
+<header class="sticky top-0 z-10 border-b border-line bg-surface/60 backdrop-blur-xl">
+  <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <a routerLink="/" class="text-lg font-bold tracking-tight">Loopback</a>
+
+    <div class="flex items-center gap-6 text-sm">
+      <a routerLink="/" class="text-muted transition hover:text-fg">Home</a>
+      <button
+        (click)="logout()"
+        class="rounded-lg border border-line px-3 py-1.5 text-muted transition hover:border-accent hover:text-fg"
+      >
+        Logout
+      </button>
+    </div>
+  </nav>
+</header>

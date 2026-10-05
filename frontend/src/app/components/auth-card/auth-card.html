@@ -1,0 +1,10 @@
+<main class="relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+  <div class="glass-card">
+    <h1 class="text-3xl font-bold tracking-tight">{{ title() }}</h1>
+    @if (subtitle()) {
+      <p class="mt-1 text-sm text-muted">{{ subtitle() }}</p>
+    }
+
+    <ng-content />
+  </div>
+</main>
