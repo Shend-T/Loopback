@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

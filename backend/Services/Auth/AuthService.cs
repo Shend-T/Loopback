@@ -22,7 +22,14 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email, ct);
+        var user = await _db.Users.FirstOrDefaultAsync(
+            u =>
+                u.Email == request.Email
+                && u.Organization.Name == request.OrganizationName
+                && !u.IsDeleted
+                && !u.Organization.IsDeleted,
+            ct
+        );
 
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             throw new UnauthorizedException("Invalid email or password.");

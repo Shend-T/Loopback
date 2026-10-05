@@ -1,6 +1,22 @@
 <app-auth-card title="Welcome Back" subtitle="Log in to continue to Loopback!">
   <form [formGroup]="form" (ngSubmit)="submit()" class="mt-8 space-y-5">
     <label class="block">
+      <span class="field-label">Organization</span>
+      <select formControlName="organizationName">
+        <option value="">Select your organization</option>
+
+        @for (organization of organizationList; track organization.name) {
+          <option [value]="organization.name">
+            {{ organization.name }}
+          </option>
+        }
+      </select>
+      @if (form.controls.organizationName.touched && form.controls.organizationName.invalid) {
+        <small class="field-error">Select Your Organization</small>
+      }
+    </label>
+
+    <label class="block">
       <span class="field-label">Email</span>
       <input
         type="email"

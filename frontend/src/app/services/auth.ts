@@ -39,9 +39,13 @@ export class Auth {
 
   register(email: string, password: string) {}
 
-  login(email: string, password: string) {
+  login(organizationName: string, email: string, password: string) {
     return this.http
-      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, password })
+      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, {
+        organizationName,
+        email,
+        password,
+      })
       .pipe(tap((res) => this.saveTokens(res)));
   }
 
