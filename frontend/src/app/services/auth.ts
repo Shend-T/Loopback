@@ -37,7 +37,15 @@ export class Auth {
     localStorage.setItem('refresh_token', res.refreshToken);
   }
 
-  register(email: string, password: string) {}
+  register(organizationName: string, email: string, password: string) {
+    return this.http
+      .post<LoginResponse>(`${environment.apiUrl}/auth/register`, {
+        organizationName,
+        email,
+        password,
+      })
+      .pipe(tap((res) => this.saveTokens(res)));
+  }
 
   login(organizationName: string, email: string, password: string) {
     return this.http

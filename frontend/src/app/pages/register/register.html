@@ -1,1 +1,72 @@
-<p>register works!</p>
+<app-auth-card title="Welcome To Loopback !" subtitle="Register your business here!">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="mt-8 space-y-5">
+    <label class="block">
+      <span class="field-label">Organization Name</span>
+      <input
+        type="text"
+        formControlName="organizationName"
+        placeholder="Your org name..."
+        class="field-input"
+      />
+      @if (form.controls.organizationName.touched && form.controls.organizationName.invalid) {
+        <small class="field-error">Enter a valid Organization name</small>
+      }
+    </label>
+
+    <label class="block">
+      <span class="field-label">Email</span>
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="you@example.com"
+        class="field-input"
+      />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <small class="field-error">Enter a valid email</small>
+      }
+    </label>
+
+    <label class="block">
+      <span class="field-label">Password</span>
+      <input
+        type="password"
+        formControlName="password"
+        placeholder="••••••••"
+        class="field-input"
+      />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <small class="field-error">Password is required</small>
+      }
+    </label>
+
+    <label class="block">
+      <span class="field-label">Confirm password</span>
+      <input
+        type="password"
+        formControlName="confirmPassword"
+        placeholder="••••••••"
+        class="field-input"
+      />
+      @if (form.controls.confirmPassword.touched) {
+        @if (form.controls.confirmPassword.hasError('required')) {
+          <small class="field-error">Confirm your password</small>
+        } @else if (form.hasError('passwordsMismatch')) {
+          <small class="field-error">Passwords don't match</small>
+        }
+      }
+    </label>
+
+    @if (error()) {
+      <p class="alert-error">
+        {{ error() }}
+      </p>
+    }
+
+    <button type="submit" [disabled]="loading" class="btn-primary">Login</button>
+  </form>
+
+  <p class="mt-6 text-center text-sm text-muted">
+    Already have an account?
+    <a routerLink="/login" class="font-medium text-accent hover:text-accent-hover"> Login </a>
+  </p>
+</app-auth-card>
