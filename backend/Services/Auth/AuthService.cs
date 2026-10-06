@@ -2,10 +2,12 @@ using System.Security.Cryptography;
 using System.Text;
 using backend.Data;
 using backend.DTOs.Auth;
+using backend.DTOs.Users;
 using backend.Exceptions;
 using backend.Models;
 using backend.Services.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace backend.Services.Auth;
 
@@ -18,6 +20,59 @@ public class AuthService : IAuthService
     {
         _db = db;
         _tokenService = tokenService;
+    }
+
+    public async Task<LoginResponse> RegisterAsync(RegisterRequest request, CancellationToken ct)
+    {
+        if (
+            await _db.Organizations.AnyAsync(
+                o => o.Name == request.OrganizationName && !o.IsDeleted,
+                ct
+            )
+        )
+        {
+            throw new ConflictException(
+                $"An organization named '{request.OrganizationName}' already exists."
+            );
+        }
+
+        var user = new User
+        {
+            Organization = new Organization { Name = request.OrganizationName },
+            Email = request.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12),
+            Role = UserRole.Admin,
+        };
+        _db.Users.Add(user);
+
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException e)
+            when (e.InnerException
+                    is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation }
+            )
+        {
+            throw new ConflictException(
+                $"An organization named '{request.OrganizationName}' already exists."
+            );
+        }
+
+        var accessToken = _tokenService.GenerateAccessToken(user);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+
+        _db.RefreshTokens.Add(
+            new RefreshToken
+            {
+                UserId = user.Id,
+                TokenHash = HashToken(refreshToken),
+                ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+        await _db.SaveChangesAsync(ct);
+
+        return new LoginResponse(accessToken, refreshToken);
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct)

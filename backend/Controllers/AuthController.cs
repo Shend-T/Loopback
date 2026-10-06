@@ -13,6 +13,15 @@ public class AuthController : ControllerBase
 
     public AuthController(IAuthService authService) => _authService = authService;
 
+    [HttpPost("register")]
+    public async Task<ActionResult<LoginResponse>> Register(
+        RegisterRequest request,
+        CancellationToken ct
+    )
+    {
+        return Ok(await _authService.RegisterAsync(request, ct));
+    }
+
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest request, CancellationToken ct)
     {
