@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using backend.Models;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Services.Tokens;
@@ -39,9 +40,21 @@ public class TokenService : ITokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    public string GenerateInviteToken()
+    {
+        var randomBytes = RandomNumberGenerator.GetBytes(32);
+        return WebEncoders.Base64UrlEncode(randomBytes);
+    }
+
     public string GenerateRefreshToken()
     {
         var randomBytes = RandomNumberGenerator.GetBytes(64);
         return Convert.ToBase64String(randomBytes);
+    }
+
+    public string HashToken(string token)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+        return Convert.ToBase64String(bytes);
     }
 }

@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<InviteUser> InviteUsers => Set<InviteUser>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,6 +49,33 @@ public class AppDbContext : DbContext
             entity.Property(u => u.Role).IsRequired().HasConversion<string>().HasMaxLength(20);
 
             entity.HasQueryFilter(u => !u.IsDeleted);
+        });
+
+        modelBuilder.Entity<InviteUser>(entity =>
+        {
+            entity.HasKey(i => i.Id);
+
+            entity.Property(i => i.Email).IsRequired().HasColumnType("citext");
+            entity.Property(i => i.TokenHash).IsRequired();
+
+            entity.HasIndex(i => i.TokenHash).IsUnique();
+
+            entity
+                .HasIndex(i => new { i.OrganizationId, i.Email })
+                .IsUnique()
+                .HasFilter("\"AcceptedAt\" IS NULL");
+
+            entity
+                .HasOne(i => i.Organization)
+                .WithMany()
+                .HasForeignKey(i => i.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity
+                .HasOne(i => i.InvitedBy)
+                .WithMany()
+                .HasForeignKey(i => i.InvitedById)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>

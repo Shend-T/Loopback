@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using backend.Data;
 using backend.Middleware;
 using backend.Services.Auth;
+using backend.Services.Invites;
 using backend.Services.Organizations;
 using backend.Services.Tokens;
 using backend.Services.Users;
@@ -58,6 +59,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IInviteService, InviteService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 

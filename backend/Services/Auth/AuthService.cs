@@ -66,7 +66,7 @@ public class AuthService : IAuthService
             new RefreshToken
             {
                 UserId = user.Id,
-                TokenHash = HashToken(refreshToken),
+                TokenHash = _tokenService.HashToken(refreshToken),
                 ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
             }
         );
@@ -96,7 +96,7 @@ public class AuthService : IAuthService
             new RefreshToken
             {
                 UserId = user.Id,
-                TokenHash = HashToken(refreshToken),
+                TokenHash = _tokenService.HashToken(refreshToken),
                 ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
             }
         );
@@ -105,15 +105,9 @@ public class AuthService : IAuthService
         return new LoginResponse(accessToken, refreshToken);
     }
 
-    private static string HashToken(string token)
-    {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
-        return Convert.ToBase64String(bytes);
-    }
-
     public async Task<LoginResponse> RefreshAsync(RefreshRequest request, CancellationToken ct)
     {
-        var hash = HashToken(request.RefreshToken);
+        var hash = _tokenService.HashToken(request.RefreshToken);
 
         var stored = await _db
             .RefreshTokens.Include(t => t.User)
@@ -131,7 +125,7 @@ public class AuthService : IAuthService
             new RefreshToken
             {
                 UserId = stored.User.Id,
-                TokenHash = HashToken(newRefreshToken),
+                TokenHash = _tokenService.HashToken(newRefreshToken),
                 ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
             }
         );
@@ -142,7 +136,7 @@ public class AuthService : IAuthService
 
     public async Task LogoutAsync(string refreshToken, CancellationToken ct)
     {
-        var hash = HashToken(refreshToken);
+        var hash = _tokenService.HashToken(refreshToken);
 
         var stored = await _db.RefreshTokens.FirstOrDefaultAsync(t => t.TokenHash == hash, ct);
 

@@ -23,6 +23,54 @@ namespace backend.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("backend.Models.InviteUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("citext");
+
+                    b.Property<DateTimeOffset>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("InvitedById")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvitedById");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId", "Email")
+                        .IsUnique()
+                        .HasFilter("\"AcceptedAt\" IS NULL");
+
+                    b.ToTable("InviteUsers");
+                });
+
             modelBuilder.Entity("backend.Models.Organization", b =>
                 {
                     b.Property<int>("Id")
@@ -127,6 +175,25 @@ namespace backend.Migrations
                         .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("backend.Models.InviteUser", b =>
+                {
+                    b.HasOne("backend.Models.User", "InvitedBy")
+                        .WithMany()
+                        .HasForeignKey("InvitedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("InvitedBy");
+
+                    b.Navigation("Organization");
                 });
 
             modelBuilder.Entity("backend.Models.RefreshToken", b =>
