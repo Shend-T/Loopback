@@ -68,4 +68,21 @@ public class InviteService : IInviteService
 
         return new InviteUserResponse(link);
     }
+
+    public async Task<InviteInfoResponse> GetInfoAsync(
+        InviteTokenRequest request,
+        CancellationToken ct
+    )
+    {
+        var hash = _tokenService.HashToken(request.Token);
+
+        var invite = await _db
+            .InviteUsers.Include(i => i.Organization)
+            .FirstOrDefaultAsync(i => i.TokenHash == hash, ct);
+
+        if (invite is null || !invite.IsPending)
+            throw new NotFoundException("This invite is invalid or has expired.");
+
+        return new InviteInfoResponse(invite.Email, invite.Organization.Name);
+    }
 }

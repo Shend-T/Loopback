@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using backend.Data;
 using backend.DTOs.Auth;
+using backend.DTOs.Invites;
 using backend.DTOs.Users;
 using backend.Exceptions;
 using backend.Models;
@@ -145,5 +146,57 @@ public class AuthService : IAuthService
             stored.RevokedAt = DateTimeOffset.UtcNow;
             await _db.SaveChangesAsync(ct);
         }
+    }
+
+    public async Task<LoginResponse> AcceptInviteAsync(
+        AcceptInviteRequest request,
+        CancellationToken ct
+    )
+    {
+        var hash = _tokenService.HashToken(request.Token);
+
+        var invite = await _db.InviteUsers.FirstOrDefaultAsync(i => i.TokenHash == hash, ct);
+
+        if (invite is null || !invite.IsPending)
+            throw new NotFoundException("This invite is invalid or has expired.");
+
+        var user = new User
+        {
+            OrganizationId = invite.OrganizationId,
+            Email = invite.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12),
+            Role = invite.Role,
+        };
+        _db.Users.Add(user);
+        invite.AcceptedAt = DateTimeOffset.UtcNow;
+
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException e)
+            when (e.InnerException
+                    is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation }
+            )
+        {
+            throw new ConflictException(
+                "An account with this email already exists in this organization."
+            );
+        }
+
+        var accessToken = _tokenService.GenerateAccessToken(user);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+
+        _db.RefreshTokens.Add(
+            new RefreshToken
+            {
+                UserId = user.Id,
+                TokenHash = _tokenService.HashToken(refreshToken),
+                ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+        await _db.SaveChangesAsync(ct);
+
+        return new LoginResponse(accessToken, refreshToken);
     }
 }

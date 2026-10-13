@@ -10,4 +10,6 @@ public interface IInviteService
         CallerContext caller,
         CancellationToken ct
     );
+
+    Task<InviteInfoResponse> GetInfoAsync(InviteTokenRequest request, CancellationToken ct);
 }

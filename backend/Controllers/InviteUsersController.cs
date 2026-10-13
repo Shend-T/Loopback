@@ -31,4 +31,14 @@ public class InviteUsersController : ControllerBase
 
         return Ok(await _service.CreateAsync(request, caller, ct));
     }
+
+    [AllowAnonymous]
+    [HttpPost("check")]
+    public async Task<ActionResult<InviteInfoResponse>> Check(
+        InviteTokenRequest request,
+        CancellationToken ct
+    )
+    {
+        return Ok(await _service.GetInfoAsync(request, ct));
+    }
 }

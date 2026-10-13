@@ -1,4 +1,5 @@
 using backend.DTOs.Auth;
+using backend.DTOs.Invites;
 using backend.Services.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,5 +46,15 @@ public class AuthController : ControllerBase
     {
         await _authService.LogoutAsync(req.RefreshToken, ct);
         return NoContent();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("accept-invite")]
+    public async Task<ActionResult<LoginResponse>> AcceptInvite(
+        AcceptInviteRequest req,
+        CancellationToken ct
+    )
+    {
+        return Ok(await _authService.AcceptInviteAsync(req, ct));
     }
 }
