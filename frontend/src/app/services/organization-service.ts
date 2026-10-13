@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { OrganizationList } from '../models/organization-list';
+import { Organization } from '../models/organization';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,7 @@ import { OrganizationList } from '../models/organization-list';
 export class OrganizationService {
   private http = inject(HttpClient);
 
-  get organizations(): Observable<OrganizationList[]> {
-    return this.http.get<OrganizationList[]>(`${environment.apiUrl}/organizations`);
+  get organizations(): Observable<Organization[]> {
+    return this.http.get<Organization[]>(`${environment.apiUrl}/organizations`);
   }
 }

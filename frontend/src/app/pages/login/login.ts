@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { OrganizationService } from '../../services/organization-service';
 import { AuthCard } from '../../components/auth-card/auth-card';
-import { OrganizationList } from '../../models/organization-list';
+import { Organization } from '../../models/organization';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +18,7 @@ export class Login implements OnInit {
   private router = inject(Router);
   private org = inject(OrganizationService);
 
-  organizationList: OrganizationList[] = [];
+  organizationList: Organization[] = [];
 
   ngOnInit(): void {
     this.org.organizations.subscribe((organizations) => {

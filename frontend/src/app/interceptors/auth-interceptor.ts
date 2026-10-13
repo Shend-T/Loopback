@@ -14,6 +14,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthCall =
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/refresh') ||
+    req.url.includes('/invite') ||
     req.url.includes('/auth/logout');
 
   return next(withToken(req, auth.token)).pipe(

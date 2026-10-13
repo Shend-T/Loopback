@@ -7,6 +7,7 @@ import { UserDashboard } from './pages/user-dashboard/user-dashboard';
 import { authGuard } from './guards/auth-guard';
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { Register } from './pages/register/register';
+import { AcceptInvite } from './pages/accept-invite/accept-invite';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: UserDashboard },
     ],
   },
+  { path: 'accept-invite', component: AcceptInvite, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
   { path: 'login', component: Login, canActivate: [guestGuard] },
 ];

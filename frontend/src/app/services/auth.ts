@@ -57,6 +57,12 @@ export class Auth {
       .pipe(tap((res) => this.saveTokens(res)));
   }
 
+  acceptInvite(token: string, password: string) {
+    return this.http
+      .post<LoginResponse>(`${environment.apiUrl}/auth/accept-invite`, { token, password })
+      .pipe(tap((res) => this.saveTokens(res)));
+  }
+
   refresh() {
     if (!this.refresh$) {
       this.refresh$ = this.http

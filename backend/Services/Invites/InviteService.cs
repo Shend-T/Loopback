@@ -83,6 +83,6 @@ public class InviteService : IInviteService
         if (invite is null || !invite.IsPending)
             throw new NotFoundException("This invite is invalid or has expired.");
 
-        return new InviteInfoResponse(invite.Email, invite.Organization.Name);
+        return new InviteInfoResponse(invite.Email, invite.Role, invite.Organization.Name);
     }
 }
