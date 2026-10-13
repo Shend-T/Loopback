@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Auth } from './auth';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
-import { tap } from 'rxjs';
+import { map, tap } from 'rxjs';
 import { InviteUser } from '../models/inviteUser';
 
 @Injectable({
@@ -14,11 +14,11 @@ export class Invite {
 
   sendInvite(email: string, role: string) {
     return this.http
-      .post<string>(`${environment.apiUrl}/invite`, {
+      .post<{ token: string }>(`${environment.apiUrl}/invite`, {
         email,
         role,
       })
-      .pipe(tap((res) => console.log(res)));
+      .pipe(map((res) => res.token));
   }
 
   check(token: string) {

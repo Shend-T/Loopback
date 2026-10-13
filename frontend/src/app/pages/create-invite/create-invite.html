@@ -1,1 +1,60 @@
-<p>create-invite works!</p>
+<app-auth-card
+  title="Invite To your Organization"
+  subtitle="Give them an email and a role, then send them the link below!"
+>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="mt-8 space-y-5">
+    <label class="block">
+      <span class="field-label">Email</span>
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="you@example.com"
+        class="field-input"
+      />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <small class="field-error">Enter a valid email</small>
+      }
+    </label>
+
+    <label class="block">
+      <span class="field-label">User Role</span>
+      <select formControlName="role">
+        <option value="">User Role</option>
+
+        <option value="Admin">Admin</option>
+        <option value="Manager">Manager</option>
+        <option value="Member">Member</option>
+      </select>
+      @if (form.controls.role.touched && form.controls.role.invalid) {
+        <small class="field-error">Select A Role</small>
+      }
+    </label>
+
+    <button type="submit" class="btn-primary mt-5 mb-6">Create Invite</button>
+  </form>
+  <!-- @if (link() != null) {
+    <p class="mt-5 mb-8">{{ link() }}</p>
+  } -->
+  @if (link(); as url) {
+    <div class="mt-5 mb-8 rounded-lg border border-line bg-surface p-4">
+      <p class="mb-2 text-sm text-muted">Invite link created. Share it with the user:</p>
+
+      <div class="flex gap-2">
+        <input
+          type="text"
+          readonly
+          [value]="url"
+          (focus)="$any($event.target).select()"
+          class="flex-1 rounded bg-page px-3 py-2 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+        <button
+          type="button"
+          (click)="copy(url)"
+          class="rounded bg-accent px-4 py-2 text-sm font-medium text-page hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          {{ copied() ? 'Copied!' : 'Copy' }}
+        </button>
+      </div>
+    </div>
+  }
+</app-auth-card>

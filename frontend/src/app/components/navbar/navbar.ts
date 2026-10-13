@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../services/auth';
+import { User } from '../../models/user';
 
 @Component({
   selector: 'app-navbar',
@@ -11,6 +12,9 @@ import { Auth } from '../../services/auth';
 export class Navbar {
   private auth = inject(Auth);
   private router = inject(Router);
+
+  user = signal<User | null>(this.auth.user);
+  isAdmin = computed(() => this.user()?.role === 'Admin');
 
   logout() {
     this.auth.logout();
