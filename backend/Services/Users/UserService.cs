@@ -103,8 +103,32 @@ public class UserService : IUserService
         }
 
         user.Email = request.Email;
-        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12);
-        user.Role = request.Role;
+
+        if (!string.IsNullOrEmpty(request.Password))
+        {
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12);
+
+            var tokens = await _db
+                .RefreshTokens.Where(t => t.UserId == user.Id && t.RevokedAt == null)
+                .ToListAsync(ct);
+            foreach (var t in tokens)
+                t.RevokedAt = DateTimeOffset.UtcNow;
+        }
+
+        if (request.Role != user.Role)
+        {
+            var canChangeRole =
+                caller.Id != user.Id
+                && (
+                    (caller.OrganizationId == user.OrganizationId && caller.Role == UserRole.Admin)
+                    || await IsPlatformAdminAsync(caller, ct)
+                );
+
+            if (!canChangeRole)
+                throw new UnauthorizedException("You can't change this user's role");
+
+            user.Role = request.Role;
+        }
 
         try
         {
@@ -121,6 +145,17 @@ public class UserService : IUserService
         }
 
         return new UserResponse(user.Id, user.OrganizationId, user.Email, user.Role);
+    }
+
+    private async Task<bool> IsPlatformAdminAsync(CallerContext caller, CancellationToken ct)
+    {
+        var isPlatformUser = await _db.Users.AnyAsync(
+            u => u.Id == caller.Id && u.Organization.IsPlatformOrganization,
+            ct
+        );
+        if (isPlatformUser)
+            return true;
+        return false;
     }
 
     private async Task<bool> CanModifyUserAsync(
@@ -178,8 +213,14 @@ public class UserService : IUserService
         CancellationToken ct
     )
     {
+        if (caller.Id == user.Id)
+            return false;
+
         var isPlatformUser = await _db.Users.AnyAsync(
-            u => u.Id == caller.Id && u.Organization.IsPlatformOrganization,
+            u =>
+                u.Id == caller.Id
+                && u.Organization.IsPlatformOrganization
+                && u.Role == UserRole.Admin,
             ct
         );
         if (isPlatformUser)

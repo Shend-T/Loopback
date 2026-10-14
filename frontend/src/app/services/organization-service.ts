@@ -13,4 +13,8 @@ export class OrganizationService {
   get organizations(): Observable<Organization[]> {
     return this.http.get<Organization[]>(`${environment.apiUrl}/organizations`);
   }
+
+  getOrganization(id?: number): Observable<Organization> {
+    return this.http.get<Organization>(`${environment.apiUrl}/organizations/${id}`);
+  }
 }

@@ -1,0 +1,178 @@
+<div class="main">
+  @if (user(); as user) {
+    <h1 class="mb-8 text-center text-3xl font-semibold text-fg">
+      Hello, {{ user.email.split('@')[0] }}
+    </h1>
+
+    <div class="grid gap-6 lg:grid-cols-[20rem_1fr]">
+      <div class="flex flex-col gap-4 self-start lg:sticky lg:top-6">
+        <aside
+          class="personal_data rounded-xl border border-line bg-surface p-5 lg:sticky lg:top-6"
+        >
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-lg font-medium text-fg">Your Account</h2>
+            <button
+              type="button"
+              (click)="toggleEdit()"
+              class="rounded-lg border border-line px-3 py-1.5 text-sm text-muted transition hover:border-accent hover:text-fg"
+            >
+              {{ isEdit ? 'Cancel' : 'Edit' }}
+            </button>
+          </div>
+
+          @if (isEdit) {
+            <form [formGroup]="form" (ngSubmit)="edit()" class="flex flex-col gap-4">
+              <label class="block">
+                <span class="field-label">Email</span>
+                <input
+                  type="email"
+                  formControlName="email"
+                  placeholder="you@example.com"
+                  class="field-input"
+                />
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <small class="field-error">Enter a valid email</small>
+                }
+              </label>
+
+              <label class="block">
+                <span class="field-label">New Password?</span>
+                <input
+                  type="password"
+                  formControlName="password"
+                  placeholder="••••••••"
+                  class="field-input"
+                />
+                <small class="text-muted">Leave empty to keep your current password</small>
+              </label>
+
+              <button type="submit" class="btn-primary">Update My Profile</button>
+            </form>
+          } @else {
+            <dl class="flex flex-col gap-3 text-sm">
+              <div>
+                <dt class="text-muted">Email</dt>
+                <dd class="break-all text-fg">{{ user.email }}</dd>
+              </div>
+              <div>
+                <dt class="text-muted">Organization</dt>
+                <dd class="text-fg">{{ org() }}</dd>
+              </div>
+            </dl>
+          }
+
+          <div class="mt-5 border-t border-line pt-4">
+            <button
+              type="button"
+              (click)="logoutConfirm()"
+              class="w-full rounded-lg border border-line px-3 py-1.5 text-sm text-muted transition hover:border-danger hover:text-danger"
+            >
+              Logout
+            </button>
+          </div>
+        </aside>
+        @if (user.role === 'Admin') {
+          <a
+            routerLink="/users"
+            class="flex items-center justify-between rounded-xl border border-line bg-surface px-5 py-3 text-sm text-fg transition hover:border-accent"
+          >
+            <span>Manage users</span>
+          </a>
+        }
+      </div>
+
+      <div class="flex flex-col gap-6">
+        <section class="issues rounded-xl border border-line bg-surface p-5">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-lg font-medium text-fg">Your Issues</h2>
+            <a
+              routerLink="/create-issue"
+              class="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-page transition hover:bg-accent-hover"
+            >
+              Post New Issue
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <p class="col-span-full py-8 text-center text-sm text-muted">
+              You haven't posted any issues yet.
+            </p>
+          </div>
+        </section>
+
+        <section class="comments rounded-xl border border-line bg-surface p-5">
+          <h2 class="mb-4 text-lg font-medium text-fg">Your Comments</h2>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <p class="col-span-full py-8 text-center text-sm text-muted">
+              You haven't commented on anything yet.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    @if (logoutModal) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        (click)="logoutConfirm()"
+      >
+        <div
+          class="w-full max-w-sm rounded-xl border border-line bg-surface p-6"
+          (click)="$event.stopPropagation()"
+        >
+          <h2 class="text-lg font-medium text-fg">Are you sure?</h2>
+          <p class="mt-1 text-sm text-muted">You'll need to log in again to get back in.</p>
+          <div class="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              (click)="logoutConfirm()"
+              class="rounded-lg border border-line px-3 py-1.5 text-sm text-muted transition hover:border-accent hover:text-fg"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              (click)="logout()"
+              class="rounded-lg bg-danger px-3 py-1.5 text-sm font-medium text-page transition hover:opacity-90"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+    @if (logoutModal) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        (click)="logoutConfirm()"
+      >
+        <div
+          class="w-full max-w-sm rounded-xl border border-line bg-surface p-6"
+          (click)="$event.stopPropagation()"
+        >
+          <h2 class="text-lg font-medium text-fg">Are you sure?</h2>
+          <p class="mt-1 text-sm text-muted">You'll need to log in again to get back in.</p>
+          <div class="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              (click)="logoutConfirm()"
+              class="rounded-lg border border-line px-3 py-1.5 text-sm text-muted transition hover:border-accent hover:text-fg"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              (click)="logout()"
+              class="rounded-lg bg-danger px-3 py-1.5 text-sm font-medium text-page transition hover:opacity-90"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    <h1>Oops! Looks like something went wrong. Please try and refresh this page :)</h1>
+  }
+</div>

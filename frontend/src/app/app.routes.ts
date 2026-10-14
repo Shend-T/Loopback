@@ -10,6 +10,7 @@ import { Register } from './pages/register/register';
 import { AcceptInvite } from './pages/accept-invite/accept-invite';
 import { CreateInvite } from './pages/create-invite/create-invite';
 import { adminGuard } from './guards/admin-guard';
+import { Profile } from './pages/profile/profile';
 
 export const routes: Routes = [
   {
@@ -20,6 +21,7 @@ export const routes: Routes = [
       { path: '', component: Home },
       { path: 'dashboard', component: UserDashboard },
       { path: 'invite', component: CreateInvite, canActivate: [adminGuard] },
+      { path: 'profile', component: Profile },
     ],
   },
   { path: 'accept-invite', component: AcceptInvite, canActivate: [guestGuard] },

@@ -3,16 +3,16 @@
     <a routerLink="/" class="text-lg font-bold tracking-tight">Loopback</a>
 
     <div class="flex items-center gap-6 text-sm">
-      <a routerLink="/" class="text-muted transition hover:text-fg">Home</a>
+      <a routerLink="/" class="text-muted transition hover:text-fg">Dashboard</a>
       @if (isAdmin()) {
         <a routerLink="/invite" class="text-muted transition hover:text-fg">Invite</a>
       }
 
       <button
-        (click)="logout()"
+        routerLink="/profile"
         class="rounded-lg border border-line px-3 py-1.5 text-muted transition hover:border-accent hover:text-fg"
       >
-        Logout
+        Profile
       </button>
     </div>
   </nav>
