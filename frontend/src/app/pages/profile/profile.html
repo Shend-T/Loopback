@@ -112,6 +112,32 @@
       </div>
     </div>
 
+    @if (editModal) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        (click)="edit()"
+      >
+        <div
+          class="w-full max-w-sm rounded-xl border border-line bg-surface p-6"
+          (click)="$event.stopPropagation()"
+        >
+          <form [formGroup]="formPassword" (ngSubmit)="editConfirm()" class="flex flex-col gap-4">
+            <label class="block">
+              <span class="field-label">Confirm Your Old Password</span>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="••••••••"
+                class="field-input"
+              />
+            </label>
+
+            <button type="submit" class="btn-primary">Update My Profile</button>
+          </form>
+        </div>
+      </div>
+    }
+
     @if (logoutModal) {
       <div
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"

@@ -115,7 +115,7 @@ public class UserService : IUserService
                 t.RevokedAt = DateTimeOffset.UtcNow;
         }
 
-        if (request.Role != user.Role)
+        if (request.Role != null && request.Role != user.Role)
         {
             var canChangeRole =
                 caller.Id != user.Id
@@ -127,7 +127,7 @@ public class UserService : IUserService
             if (!canChangeRole)
                 throw new UnauthorizedException("You can't change this user's role");
 
-            user.Role = request.Role;
+            user.Role = (UserRole)request.Role;
         }
 
         try

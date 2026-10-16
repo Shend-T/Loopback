@@ -5,6 +5,7 @@ import { Organization } from '../../models/organization';
 import { User } from '../../models/user';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UserService } from '../../services/user-service';
 
 @Component({
   selector: 'app-profile',
@@ -14,6 +15,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 })
 export class Profile {
   private auth = inject(Auth);
+  private userService = inject(UserService);
   private orgService = inject(OrganizationService);
 
   private fb = inject(FormBuilder);
@@ -27,7 +29,12 @@ export class Profile {
     password: [''],
   });
 
+  formPassword = this.fb.nonNullable.group({
+    password: ['', [Validators.required]],
+  });
+
   isEdit = false;
+  editModal = false;
   logoutModal = false;
 
   constructor() {
@@ -48,7 +55,34 @@ export class Profile {
   }
 
   edit() {
-    console.log(this.form);
+    this.editModal = !this.editModal;
+  }
+
+  editConfirm() {
+    console.log(this.form.getRawValue());
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const user = this.user();
+    if (!user) return;
+
+    const { email, password } = this.form.getRawValue();
+    this.userService.update(user.id, email, password).subscribe({
+      next: () => {
+        if (password) {
+          this.auth.logout();
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.user.set(this.auth.user);
+        this.form.patchValue({ password: '' });
+        this.isEdit = false;
+        this.editModal = false;
+      },
+      error: (e) => console.log(e),
+    });
   }
 
   logoutConfirm() {
