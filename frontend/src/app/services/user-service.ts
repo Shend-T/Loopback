@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Auth } from './auth';
 import { environment } from '../../environments/environment.development';
-import { map, of, switchMap } from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
+import { User } from '../models/user';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,10 @@ import { map, of, switchMap } from 'rxjs';
 export class UserService {
   private http = inject(HttpClient);
   private auth = inject(Auth);
+
+  users() {
+    return this.http.get<User[]>(`${environment.apiUrl}/users`);
+  }
 
   update(id: number, email: string, password?: string, role?: string) {
     const isSelf = this.auth.user?.id === id;
