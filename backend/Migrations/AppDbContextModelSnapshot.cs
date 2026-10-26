@@ -128,7 +128,7 @@ namespace backend.Migrations
 
                     b.HasIndex("OrganizationId", "Status");
 
-                    b.ToTable("Issue");
+                    b.ToTable("Issues");
                 });
 
             modelBuilder.Entity("backend.Models.Organization", b =>

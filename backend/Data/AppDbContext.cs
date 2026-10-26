@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<InviteUser> InviteUsers => Set<InviteUser>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Issue> Issues => Set<Issue>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

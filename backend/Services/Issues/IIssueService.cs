@@ -5,13 +5,9 @@ namespace backend.Services.Issues;
 
 public interface IIssueService
 {
-    Task<IReadOnlyList<IssueResposne>> GetAllAsync(CallerContext caller, CancellationToken ct);
-    Task<IReadOnlyList<IssueResposne>> GetAllForOrgAsync(
-        CallerContext caller,
-        CancellationToken ct
-    );
+    Task<IReadOnlyList<IssueResponse>> GetAllAsync(CallerContext caller, CancellationToken ct);
 
-    Task<IssueResposne> CreateAsync(
+    Task<IssueResponse> CreateAsync(
         IssueRequest request,
         CallerContext caller,
         CancellationToken ct

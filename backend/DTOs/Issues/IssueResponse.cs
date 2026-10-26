@@ -2,7 +2,7 @@ using backend.Models;
 
 namespace backend.DTOs.Issues;
 
-public record IssueResposne(
+public record IssueResponse(
     int Id,
     int OrganizationId,
     string Title,
@@ -12,5 +12,5 @@ public record IssueResposne(
     int? ReportedById,
     int? AssignedToId,
     DateTimeOffset CreatedAt,
-    DateTimeOffset DueDate
+    DateTimeOffset? DueDate
 );
