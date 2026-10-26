@@ -94,5 +94,27 @@ public class AppDbContext : DbContext
 
             entity.HasQueryFilter(t => !t.User.IsDeleted);
         });
+
+        modelBuilder.Entity<Issue>(e =>
+        {
+            e.HasOne(i => i.Organization)
+                .WithMany()
+                .HasForeignKey(i => i.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(i => i.ReportedBy)
+                .WithMany(u => u.ReportedIssues)
+                .HasForeignKey(i => i.ReportedById)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(i => i.AssignedTo)
+                .WithMany(u => u.AssignedIssues)
+                .HasForeignKey(i => i.AssignedToId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            e.HasQueryFilter(i => !i.IsDeleted);
+            e.Property(i => i.Title).HasMaxLength(200);
+            e.HasIndex(i => new { i.OrganizationId, i.Status });
+        });
     }
 }

@@ -71,6 +71,66 @@ namespace backend.Migrations
                     b.ToTable("InviteUsers");
                 });
 
+            modelBuilder.Entity("backend.Models.Issue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssignedToId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OrganizationId1")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ReportedById")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Severity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("OrganizationId1");
+
+                    b.HasIndex("ReportedById");
+
+                    b.HasIndex("OrganizationId", "Status");
+
+                    b.ToTable("Issue");
+                });
+
             modelBuilder.Entity("backend.Models.Organization", b =>
                 {
                     b.Property<int>("Id")
@@ -196,6 +256,35 @@ namespace backend.Migrations
                     b.Navigation("Organization");
                 });
 
+            modelBuilder.Entity("backend.Models.Issue", b =>
+                {
+                    b.HasOne("backend.Models.User", "AssignedTo")
+                        .WithMany("AssignedIssues")
+                        .HasForeignKey("AssignedToId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("backend.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.Organization", null)
+                        .WithMany("Issues")
+                        .HasForeignKey("OrganizationId1");
+
+                    b.HasOne("backend.Models.User", "ReportedBy")
+                        .WithMany("ReportedIssues")
+                        .HasForeignKey("ReportedById")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("ReportedBy");
+                });
+
             modelBuilder.Entity("backend.Models.RefreshToken", b =>
                 {
                     b.HasOne("backend.Models.User", "User")
@@ -220,7 +309,16 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Organization", b =>
                 {
+                    b.Navigation("Issues");
+
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("backend.Models.User", b =>
+                {
+                    b.Navigation("AssignedIssues");
+
+                    b.Navigation("ReportedIssues");
                 });
 #pragma warning restore 612, 618
         }

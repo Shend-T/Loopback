@@ -10,4 +10,7 @@ public class User
     public UserRole Role { get; set; }
     public bool IsDeleted { get; set; } = false;
     public DateTimeOffset? DeletedAt { get; set; }
+
+    public ICollection<Issue> ReportedIssues { get; set; } = new List<Issue>();
+    public ICollection<Issue> AssignedIssues { get; set; } = new List<Issue>();
 }

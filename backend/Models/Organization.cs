@@ -9,4 +9,6 @@ public class Organization
     public DateTimeOffset? DeletedAt { get; set; }
     public bool IsPlatformOrganization { get; set; } = false;
     public ICollection<User> Users { get; set; } = new List<User>();
+
+    public ICollection<Issue> Issues { get; set; } = new List<Issue>();
 }
