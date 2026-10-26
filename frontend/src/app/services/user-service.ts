@@ -30,4 +30,8 @@ export class UserService {
         switchMap((res) => (refreshAfter ? this.auth.refresh().pipe(map(() => res)) : of(res))),
       );
   }
+
+  delete(id: number) {
+    return this.http.delete(`${environment.apiUrl}/users/${id}`);
+  }
 }

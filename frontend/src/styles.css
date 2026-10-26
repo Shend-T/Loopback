@@ -45,4 +45,7 @@ body {
   .btn-primary {
     @apply w-full rounded-lg bg-accent px-4 py-2.5 font-semibold text-page transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50;
   }
+  .btn-danger {
+    @apply rounded-lg bg-danger px-4 py-2.5 font-semibold text-page transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50;
+  }
 }
