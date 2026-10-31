@@ -1,6 +1,8 @@
+using System.Linq.Expressions;
 using backend.Auth;
 using backend.Data;
 using backend.DTOs.Issues;
+using backend.DTOs.Users;
 using backend.Exceptions;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,46 @@ public class IssueService : IIssueService
             || _db.Organizations.Any(o => o.Id == caller.OrganizationId && o.IsPlatformOrganization)
         );
 
+    private static TimeSpan DueWindow(IssueSeverity severity) =>
+        severity switch
+        {
+            IssueSeverity.Critical => TimeSpan.FromHours(24),
+            IssueSeverity.High => TimeSpan.FromDays(3),
+            IssueSeverity.Normal => TimeSpan.FromDays(7),
+            IssueSeverity.Low => TimeSpan.FromDays(14),
+            _ => throw new ArgumentOutOfRangeException(nameof(severity)),
+        };
+
+    private static readonly Expression<Func<Issue, IssueResponse>> ToResponse =
+        i => new IssueResponse(
+            i.Id,
+            i.OrganizationId,
+            i.Title,
+            i.Description,
+            i.Status,
+            i.Severity,
+            i.ReportedById,
+            i.ReportedBy == null
+                ? null
+                : new UserResponse(
+                    i.ReportedBy.Id,
+                    i.ReportedBy.OrganizationId,
+                    i.ReportedBy.Email,
+                    i.ReportedBy.Role
+                ),
+            i.AssignedToId,
+            i.AssignedTo == null
+                ? null
+                : new UserResponse(
+                    i.AssignedTo.Id,
+                    i.AssignedTo.OrganizationId,
+                    i.AssignedTo.Email,
+                    i.AssignedTo.Role
+                ),
+            i.CreatedAt,
+            i.DueDate
+        );
+
     public async Task<IReadOnlyList<IssueResponse>> GetAllAsync(
         CallerContext caller,
         CancellationToken ct
@@ -27,18 +69,7 @@ public class IssueService : IIssueService
         return await VisibleIssues(caller)
             .AsNoTracking()
             .OrderBy(i => i.Id)
-            .Select(i => new IssueResponse(
-                i.Id,
-                i.OrganizationId,
-                i.Title,
-                i.Description,
-                i.Status,
-                i.Severity,
-                i.ReportedById,
-                i.AssignedToId,
-                i.CreatedAt,
-                i.DueDate
-            ))
+            .Select(ToResponse)
             .ToListAsync(ct);
     }
 
@@ -72,24 +103,17 @@ public class IssueService : IIssueService
             Status = IssueStatus.New,
 
             AssignedToId = request.AssignedToId,
-            // DueDate = request.DueDate,
+            DueDate = DateTimeOffset.UtcNow + DueWindow(request.Severity),
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
         _db.Issues.Add(issue);
         await _db.SaveChangesAsync(ct);
 
-        return new IssueResponse(
-            issue.Id,
-            issue.OrganizationId,
-            issue.Title,
-            issue.Description,
-            issue.Status,
-            issue.Severity,
-            issue.ReportedById,
-            issue.AssignedToId,
-            issue.CreatedAt,
-            issue.DueDate
-        );
+        return await VisibleIssues(caller)
+            .AsNoTracking()
+            .Where(i => i.Id == issue.Id)
+            .Select(ToResponse)
+            .SingleAsync(ct);
     }
 }

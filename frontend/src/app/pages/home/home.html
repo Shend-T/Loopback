@@ -1,1 +1,85 @@
-<h1 class="text-3xl font-bold">Hello!</h1>
+<div class="mx-auto max-w-6xl px-4 py-8">
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-fg">Issues</h1>
+      <p class="text-sm text-muted">{{ issueList().length }} in total</p>
+    </div>
+    <a
+      routerLink="/create-issue"
+      class="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-page transition hover:bg-accent-hover"
+    >
+      Post New Issue
+    </a>
+  </div>
+
+  @if (issueList().length === 0) {
+    <div class="rounded-xl border border-line bg-surface py-12 text-center text-sm text-muted">
+      No issues yet.
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      @for (issue of issueList(); track issue.id) {
+        <article
+          class="flex flex-col rounded-xl border border-line bg-surface p-5 transition hover:border-accent"
+        >
+          <div class="mb-3 flex items-center gap-2">
+            <span
+              class="rounded-full border px-2 py-0.5 text-xs"
+              [class]="
+                issue.severity === 'Critical' || issue.severity === 'High'
+                  ? 'border-danger text-danger'
+                  : 'border-line text-muted'
+              "
+            >
+              {{ issue.severity }}
+            </span>
+            <span class="rounded-full border border-line px-2 py-0.5 text-xs text-muted">
+              {{ issue.status }}
+            </span>
+          </div>
+
+          <h2 class="line-clamp-1 text-lg font-medium text-fg">{{ issue.title }}</h2>
+          <p class="mt-1 line-clamp-3 text-sm text-muted">{{ issue.description }}</p>
+
+          <p class="mt-3 text-xs text-muted">
+            @if (issue.assignedTo; as a) {
+              {{ a.id === user()?.id ? 'Assigned to you' : 'Assigned to ' + a.email }}
+            } @else {
+              Unassigned
+            }
+          </p>
+
+          <div class="mt-auto flex gap-2 pt-4">
+            <!-- <a
+              [routerLink]="['/issues', issue.id]"
+              class="flex-1 rounded-lg border border-line px-3 py-1.5 text-center text-sm text-muted transition hover:border-accent hover:text-fg"
+            >
+              See more
+            </a> -->
+            <a
+              class="flex-1 rounded-lg border border-line px-3 py-1.5 text-center text-sm text-muted transition hover:border-accent hover:text-fg"
+            >
+              See more
+            </a>
+
+            @if (!issue.assignedTo) {
+              <!-- <button
+                type="button"
+                (click)="claim(issue)"
+                class="flex-1 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-page transition hover:bg-accent-hover"
+              >
+                Claim
+              </button> -->
+              <button
+                type="button"
+                class="flex-1 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-page transition hover:bg-accent-hover"
+              >
+                Claim
+              </button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>
