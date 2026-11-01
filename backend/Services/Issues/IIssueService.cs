@@ -7,6 +7,11 @@ public interface IIssueService
 {
     Task<IReadOnlyList<IssueResponse>> GetAllAsync(CallerContext caller, CancellationToken ct);
 
+    Task<IReadOnlyList<IssueResponse>> GetUserIssuesAsync(
+        CallerContext caller,
+        CancellationToken ct
+    );
+
     Task<IssueResponse> CreateAsync(
         IssueRequest request,
         CallerContext caller,

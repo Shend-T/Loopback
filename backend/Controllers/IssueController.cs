@@ -30,6 +30,21 @@ public class IssueController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("mine")]
+    public async Task<ActionResult<IReadOnlyList<IssueResponse>>> GetUserIssues(
+        CancellationToken ct
+    )
+    {
+        var caller = new CallerContext(
+            Id: int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+            OrganizationId: int.Parse(User.FindFirstValue("organizationId")!),
+            Role: Enum.Parse<UserRole>(User.FindFirstValue(ClaimTypes.Role)!)
+        );
+
+        return Ok(await _service.GetUserIssuesAsync(caller, ct));
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<IssueResponse>> Create(
         IssueRequest request,

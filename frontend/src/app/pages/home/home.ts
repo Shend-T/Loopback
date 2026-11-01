@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../../services/auth';
@@ -7,18 +7,17 @@ import { environment } from '../../../environments/environment.development';
 import { IssueService } from '../../services/issue-service';
 import { Issue } from '../../models/issue';
 import { User } from '../../models/user';
+import { IssueModal } from '../../components/issue-modal/issue-modal';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [IssueModal],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {
+export class Home implements OnInit {
   private auth = inject(Auth);
   private issueService = inject(IssueService);
-  private router = inject(Router);
-  private http = inject(HttpClient);
 
   token = this.auth.token;
   loggedIn = this.auth.isLoggedIn();
@@ -27,21 +26,26 @@ export class Home {
   issueList = signal<Issue[]>([]);
   loading = signal(true);
 
+  showModal = signal(false);
+
   constructor() {
     const _user = this.auth.user;
-    if (!_user) return;
+    if (_user) this.user.set(_user);
+  }
 
-    this.user.set(_user);
+  ngOnInit() {
+    if (!this.user()) return;
+    this.loadIssues();
+  }
 
+  loadIssues() {
     this.issueService.issues.subscribe({
       next: (res) => {
         this.issueList.set(res);
         this.loading.set(false);
-        console.log('Good');
       },
       error: () => {
         this.loading.set(false);
-        console.log('Error');
       },
     });
   }

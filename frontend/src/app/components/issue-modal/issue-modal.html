@@ -1,0 +1,79 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-page/70 p-4 backdrop-blur-sm"
+  (click)="close()"
+>
+  <div
+    class="glass-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="issue-modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="flex items-center justify-between">
+      <h2 id="issue-modal-title" class="text-lg font-semibold">New issue</h2>
+      <button
+        type="button"
+        aria-label="Close"
+        class="rounded-md px-2 text-2xl leading-none text-muted transition hover:bg-line/40 hover:text-fg"
+        (click)="close()"
+      >
+        ×
+      </button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="mt-6 space-y-4">
+      <div>
+        <label for="title" class="field-label">Title</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          class="field-input"
+          placeholder="Short summary of the issue"
+        />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <span class="field-error">Title is required.</span>
+        }
+      </div>
+
+      <div>
+        <label for="description" class="field-label">Description</label>
+        <textarea
+          id="description"
+          rows="4"
+          formControlName="description"
+          class="field-input"
+          placeholder="What happened?"
+        ></textarea>
+        @if (form.controls.description.touched && form.controls.description.invalid) {
+          <span class="field-error">Description is required.</span>
+        }
+      </div>
+
+      <div>
+        <label for="severity" class="field-label">Severity</label>
+        <select id="severity" formControlName="severity" class="field-input">
+          <option value="" disabled class="bg-surface">Select severity</option>
+          <option value="Low" class="bg-surface">Low</option>
+          <option value="Normal" class="bg-surface">Normal</option>
+          <option value="High" class="bg-surface">High</option>
+          <option value="Critical" class="bg-surface">Critical</option>
+        </select>
+        @if (form.controls.severity.touched && form.controls.severity.invalid) {
+          <span class="field-error">Please choose a severity.</span>
+        }
+      </div>
+
+      <footer class="flex justify-end gap-2 pt-2">
+        <button
+          type="button"
+          class="rounded-lg border border-line px-4 py-2.5 text-muted transition hover:bg-line/40 hover:text-fg"
+          (click)="close()"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary w-auto">Create issue</button>
+      </footer>
+    </form>
+  </div>
+</div>

@@ -73,6 +73,19 @@ public class IssueService : IIssueService
             .ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<IssueResponse>> GetUserIssuesAsync(
+        CallerContext caller,
+        CancellationToken ct
+    )
+    {
+        return await VisibleIssues(caller)
+            .AsNoTracking()
+            .Where(i => i.ReportedById == caller.Id || i.AssignedToId == caller.Id)
+            .OrderBy(i => i.Id)
+            .Select(ToResponse)
+            .ToListAsync(ct);
+    }
+
     public async Task<IssueResponse> CreateAsync(
         IssueRequest request,
         CallerContext caller,

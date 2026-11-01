@@ -13,4 +13,12 @@ export class IssueService {
   get issues(): Observable<Issue[]> {
     return this.http.get<Issue[]>(`${environment.apiUrl}/issue`);
   }
+
+  userIssues(): Observable<Issue[]> {
+    return this.http.get<Issue[]>(`${environment.apiUrl}/issue/mine`);
+  }
+
+  createIssue(title: string, description: string, severity: string) {
+    return this.http.post(`${environment.apiUrl}/issue`, { title, description, severity });
+  }
 }

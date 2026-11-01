@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Auth } from '../../services/auth';
 import { OrganizationService } from '../../services/organization-service';
 import { Organization } from '../../models/organization';
@@ -6,17 +6,21 @@ import { User } from '../../models/user';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../services/user-service';
+import { IssueModal } from '../../components/issue-modal/issue-modal';
+import { Issue } from '../../models/issue';
+import { IssueService } from '../../services/issue-service';
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, IssueModal],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
-export class Profile {
+export class Profile implements OnInit {
   private auth = inject(Auth);
   private userService = inject(UserService);
   private orgService = inject(OrganizationService);
+  private issueService = inject(IssueService);
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -37,11 +41,24 @@ export class Profile {
   editModal = false;
   logoutModal = false;
 
+  showModal = signal(false);
+
+  issueList = signal<Issue[]>([]);
+  loadIssues() {
+    this.issueService.userIssues().subscribe((issues) => this.issueList.set(issues));
+  }
+
+  ngOnInit() {
+    if (!this.user()) return;
+    this.loadIssues();
+  }
+
   constructor() {
     const _user = this.auth.user;
     if (!_user) return;
 
     this.user.set(_user);
+
     this.orgService.getOrganization(_user.organizationId).subscribe({
       next: (org) => this.org.set(org.name),
       error: (e) => console.log(e),

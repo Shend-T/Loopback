@@ -7,6 +7,7 @@
     <a
       routerLink="/create-issue"
       class="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-page transition hover:bg-accent-hover"
+      (click)="showModal.set(true)"
     >
       Post New Issue
     </a>
@@ -81,5 +82,9 @@
         </article>
       }
     </div>
+  }
+
+  @if (showModal()) {
+    <app-issue-modal (created)="loadIssues()" (closed)="showModal.set(false)" />
   }
 </div>
